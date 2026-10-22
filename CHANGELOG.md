@@ -2,7 +2,7 @@
 
 All notable changes to the code are recorded here. Model releases are tracked on the Hugging Face model page and tagged here as `model-<name>`.
 
-## Unreleased
+## 0.1.0 — 2026-10-22
 
 ### Fixed (first run on real hardware, an Eaton PowerXL DM1 behind a Jetson, 2026-10-22)
 - A model timeout or crash is a model failure, never a dropped client: on Python 3.10 the asyncio timeout escaped the gate and the proxy closed the operator's connection with a stop still in flight. Both paths now fall back to the rules and the proxy answers the frame; only an upstream (controller) socket error closes the client. A frame refused because of a gate bug is still written to the ledger.
