@@ -15,7 +15,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-DEFAULT_REPO = "tractian-ai/talos-student"
+DEFAULT_REPO = "tractian/talos-student"
 FILES = ("student.int8.onnx", "vocab.json", "heads.json")
 ENV_WEIGHTS = "TALOS_WEIGHTS"
 ENV_REPO = "TALOS_HF_REPO"

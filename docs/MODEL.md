@@ -49,7 +49,7 @@ weights/
   heads.json          per-question head layout and temperatures
 ```
 
-`talos-pull` fetches them from `tractian-ai/talos-student`. The 0.8B adapter lives beside it at `tractian-ai/talos-0.8b`.
+`talos-pull` fetches them from `tractian/talos-student`. The 0.8B adapter lives beside it at `tractian/talos-0.8b`.
 
 ## Lineage
 

@@ -90,6 +90,6 @@ Unregistered sources get a synthetic id (`u:<hash>`) and sit in `normal` with a 
 | variable | used by |
 |---|---|
 | `TALOS_WEIGHTS` | default weights directory for the proxy and `talos-pull` |
-| `TALOS_HF_REPO` | Hugging Face repo id for `talos-pull` (default `tractian-ai/talos-student`) |
+| `TALOS_HF_REPO` | Hugging Face repo id for `talos-pull` (default `tractian/talos-student`) |
 | `TALOS_JUDGE_API_KEY` (or `OPENROUTER_API_KEY`) | bearer token for a remote System One judge |
 | `TALOS_LLM_BASE`, `TALOS_LLM_MODEL` | OpenAI-compatible endpoint for the optional map importer's LLM classifier |
