@@ -62,8 +62,10 @@ Same held-out test as the teacher (15,593 requests, unseen plant family and pers
 
 | | student | teacher |
 |---|---|---|
+| bad requests caught | 97.2% | 98.2% |
+| good requests wrongly blocked | 0.73% | 0.58% |
+| with no register map: caught / wrongly blocked | 97.5% / 1.23% | 98.1% / 0.97% |
 | 4-way action accuracy | 92.2% | 93.6% |
-| accuracy with a map / without a map | 92.3% / 92.1% | 93.7% / 93.5% |
 | accuracy when confident (p >= 0.9) | 97.9% (85% of requests) | 99.0% (80%) |
 | misbehaving-agent AUROC | 0.991 | 0.992 |
 

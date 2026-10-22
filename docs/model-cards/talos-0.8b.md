@@ -66,11 +66,12 @@ Held-out test: one plant family and three agent personas that never appeared in 
 | | |
 |---|---|
 | bad requests caught (reference deny, model deny) | 98.2% (1,043 of 1,062) |
-| good requests wrongly blocked | 0.54% (84 of 14,531) |
+| good requests wrongly blocked | 0.58% (84 of 14,531) |
 | missed blocks | 0.12% (19) |
 | 4-way action accuracy | 93.6% |
 | accuracy when confident (p >= 0.9; 80% of requests) | 99.0% |
-| accuracy with a map / without a map | 93.7% / 93.5% |
+| with a register map: caught / wrongly blocked | 98.4% / 0.19% |
+| with no register map: caught / wrongly blocked | 98.1% / 0.97% |
 | misbehaving-agent AUROC | 0.992 |
 
 Most 4-way disagreements are a read served from cache instead of forwarded, which has no cost. How these are measured: `docs/EVAL.md` in the repository.
