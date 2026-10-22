@@ -25,7 +25,7 @@ gate = Gate(cfg, world=None)        # world=None is blind mode
 | `shadow` | `False` | Judge and log, never block. Every decision is recorded with what Talos would have done. Use this for the first days on a real network. |
 | `fastpath` | `FastpathConfig()` | See below. |
 | `policy` | `PolicyConfig()` | See below. |
-| `budgets` | `DEFAULT_BUDGETS` | Per-tier request budgets, see Tiers. One request costs one token whatever its register count: an HMI polling a 10-register block pays for one round trip. |
+| `budgets` | `DEFAULT_BUDGETS` | Per-tier request budgets, see Tiers. One wire frame costs one token: an HMI polling a block of up to 16 registers, or writing a block, pays for one round trip. A read wider than 16 registers pays one token per 16, so an address sweep still runs into the budget. |
 
 ## FastpathConfig (`talos/fastpath.py`)
 

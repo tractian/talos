@@ -91,6 +91,7 @@ class Request(BaseModel):
     target: Target
     value: float | None = None             # raw value for writes
     count: int = 1                            # registers / nodes touched
+    budget_charge: bool = True                # False for the 2nd..nth register of one wire frame: one frame, one token
     ts_rel: float = 0.0                       # seconds relative to episode start; absolute time never leaves the gateway
 
 

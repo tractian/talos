@@ -143,15 +143,13 @@ class ModbusProxy:
                 tid, pid, length, uid = struct.unpack(">HHHB", hdr)
                 pdu = await reader.readexactly(length - 1)
                 t0 = time.perf_counter()
+                src = {"ip": src_ip, "unit": uid}
                 try:
-                    resp, close = await self._process(tid, uid, pdu, {"ip": src_ip, "unit": uid}, up_r, up_w, t0)
-                except (asyncio.IncompleteReadError, ConnectionResetError, BrokenPipeError):
-                    raise   # the controller side went away: nothing to answer with
+                    resp, close = await self._process(tid, uid, pdu, src, up_r, up_w, t0)
+                except (asyncio.IncompleteReadError, OSError):
+                    raise   # the controller side went away: close the client so it reconnects / alarms
                 except Exception as e:  # noqa: BLE001 - never drop a client over a gate bug; answer this frame and go on
-                    self.counts["errors"] += 1
-                    if self.counts["errors"] <= 5:
-                        print(f"[talos-proxy] error judging frame from {src_ip}: {type(e).__name__}: {e}", file=sys.stderr)
-                    resp, close = exception_frame(tid, uid, pdu[0] if pdu else 0, self.deny_exception), False
+                    resp, close = self._error_frame(tid, uid, pdu, src, e, t0), False
                 if resp:
                     writer.write(resp)
                     await writer.drain()
@@ -165,6 +163,24 @@ class ModbusProxy:
             pass
         finally:
             writer.close(); up_w.close()
+
+    def _error_frame(self, tid: int, uid: int, pdu: bytes, src: dict, e: Exception, t0: float) -> bytes:
+        """A gate/proxy bug while judging one frame: deny that frame, write a ledger row for it, keep the connection."""
+        self.counts["errors"] += 1
+        self.counts["denied"] += 1
+        if self.counts["errors"] <= 5:
+            print(f"[talos-proxy] error judging frame from {src['ip']}: {type(e).__name__}: {e}", file=sys.stderr)
+        now = self.gate.clock()
+        try:
+            agent = self.gate.registry.resolve("modbus", src, now)
+            self.gate.ledger.append({"agent": agent, "op": "frame", "tag": f"fc:{pdu[0] if pdu else 0}", "cls": "unknown", "value": None,
+                                     "action": "deny", "returned": "deny", "by": "error", "tier": self.gate.registry.state(agent).tier.value,
+                                     "reasons": [f"proxy_error:{type(e).__name__}"], "answers": None, "state": None,
+                                     "latency_ms": round((time.perf_counter() - t0) * 1000, 3), "shadow": self.gate.cfg.shadow})
+        except Exception as e2:  # noqa: BLE001 - the ledger must not take the connection down either
+            print(f"[talos-proxy] could not ledger the error: {type(e2).__name__}: {e2}", file=sys.stderr)
+        self.latencies.append((time.perf_counter() - t0) * 1000)
+        return exception_frame(tid, uid, pdu[0] if pdu else 0, self.deny_exception)
 
     async def _forward(self, tid: int, uid: int, pdu: bytes, up_r, up_w) -> bytes:
         up_w.write(struct.pack(">HHHB", tid, 0, len(pdu) + 1, uid) + pdu)
@@ -188,8 +204,9 @@ class ModbusProxy:
         fc = parsed["fc"]
         decisions = []
         # writes first (a FC23 read+write is judged as a write)
-        for kind, addr, val in parsed["writes"]:
+        for i, (kind, addr, val) in enumerate(parsed["writes"]):
             req = self._request_for(kind, addr, Op.write, val, 1, src)
+            req.budget_charge = i == 0            # a block write is one wire frame: one token, judged per register
             decisions.append((req, await self.gate.decide_async(req, plant, source=src, now=now)))
         for kind, addr, qty in parsed["reads"]:
             req = self._request_for(kind, addr, Op.read, None, qty, src)
@@ -227,6 +244,15 @@ class ModbusProxy:
         # forward
         resp = await self._forward(tid, uid, pdu, up_r, up_w)
         self.counts["forwarded"] += 1
+        try:
+            self._after_forward(resp, parsed, fc, decisions, now)
+        except Exception as e:  # noqa: BLE001 - the controller already answered; bookkeeping can never turn that into a failure
+            self.counts["errors"] += 1
+            if self.counts["errors"] <= 5:
+                print(f"[talos-proxy] bookkeeping error after forward: {type(e).__name__}: {e}", file=sys.stderr)
+        return resp, False
+
+    def _after_forward(self, resp: bytes, parsed: dict, fc: int, decisions: list, now: float):
         rpdu = resp[7:]
         if rpdu and not (rpdu[0] & 0x80):
             now2 = self.gate.clock()
@@ -244,7 +270,6 @@ class ModbusProxy:
             for req, _ in decisions:
                 st = self.gate.registry.state(req.agent_id)
                 st.errors.appendleft(now)
-        return resp, False
 
     def report(self, file=sys.stderr):
         if not self.total:
@@ -252,7 +277,7 @@ class ModbusProxy:
         def pct(xs, p):
             xs = sorted(xs); return xs[min(len(xs) - 1, int(p * len(xs)))]
         print(f"[talos-proxy] n={self.counts['requests']} forwarded={self.counts['forwarded']} cache={self.counts['served_cache']} "
-              f"denied={self.counts['denied']} deferred={self.counts['deferred']} closed={self.counts['closed']} unknown_fc={self.counts['unknown_fc']} | "
+              f"denied={self.counts['denied']} deferred={self.counts['deferred']} closed={self.counts['closed']} unknown_fc={self.counts['unknown_fc']} errors={self.counts['errors']} | "
               f"added ms p50={pct(self.latencies, .5):.3f} p99={pct(self.latencies, .99):.3f} max={max(self.latencies):.3f} | "
               f"e2e ms p50={pct(self.total, .5):.3f} p99={pct(self.total, .99):.3f} | gate by={self.gate.stats['by']}", file=file)
 

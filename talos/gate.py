@@ -62,7 +62,15 @@ class Gate:
         self.fingerprints = FingerprintStore()     # what a blind gateway learns about each register from traffic (map-free mode)
         self.blind = not self.world.tags           # no map at all: every tag is judged from its fingerprint
         self.policy = Policy(self.cfg.policy)
-        self.stats = {"requests": 0, "by": {}, "actions": {}, "model_failures": 0}
+        self.stats = {"requests": 0, "by": {}, "actions": {}, "model_failures": 0, "model_busy": 0}
+        self._judge_busy = False
+        self._executor = None
+
+    def _judge_executor(self):
+        if self._executor is None:
+            from concurrent.futures import ThreadPoolExecutor
+            self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="talos-judge")
+        return self._executor
 
     # observations from the data path (the proxy calls these)
     def observe_read(self, tag: str, value: float, now: float | None = None):
@@ -122,15 +130,26 @@ class Gate:
             body, deadline = next(gen)
         except StopIteration as done:
             return done.value
-        try:
-            answers = await asyncio.wait_for(asyncio.to_thread(self.judge.judge, body, deadline), timeout=deadline + 0.005)
-            res = (answers, None)
-        except JudgeError as e:
-            res = (None, e)
-        except (TimeoutError, asyncio.TimeoutError):  # noqa: UP041 - separate classes before Python 3.11
-            res = (None, JudgeTimeout(f"deadline {deadline:.3f}s"))
-        except Exception as e:  # noqa: BLE001 - a crashing judge is a model failure, never a dropped client
-            res = (None, JudgeError(f"{type(e).__name__}: {e}"))
+        res = None
+        if self._judge_busy:
+            # one inference in flight at a time: a slow judge must not pile threads up behind itself (then every later
+            # request would time out on queue wait alone). The second caller falls back immediately.
+            self.stats["model_busy"] = self.stats.get("model_busy", 0) + 1
+            res = (None, JudgeTimeout("judge busy"))
+        else:
+            self._judge_busy = True
+            loop = asyncio.get_running_loop()
+            fut = loop.run_in_executor(self._judge_executor(), self.judge.judge, body, deadline)
+            fut.add_done_callback(lambda _f: setattr(self, "_judge_busy", False))   # released when the thread really finishes
+            try:
+                answers = await asyncio.wait_for(asyncio.shield(fut), timeout=deadline + 0.005)
+                res = (answers, None)
+            except JudgeError as e:
+                res = (None, e)
+            except (TimeoutError, asyncio.TimeoutError):
+                res = (None, JudgeTimeout(f"deadline {deadline:.3f}s"))
+            except Exception as e:  # noqa: BLE001 - a crashing judge is a model failure, never a dropped client
+                res = (None, JudgeError(f"{type(e).__name__}: {e}"))
         try:
             gen.send(res)
         except StopIteration as done:

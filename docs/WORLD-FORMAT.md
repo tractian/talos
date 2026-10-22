@@ -38,7 +38,7 @@ Optional. Without one, Talos runs blind: every address is a fingerprint learned 
 | `envelope` | no | Typical operating range. The model sees where a write lands relative to it. |
 | `writable_while_running` | no | Default `true`. `false` denies writes while the asset runs. |
 | `safe_direction` | no | `down`, `up`, or `none`. A write toward safe is a stop-class write and passes under stop-bypass. |
-| `stop_value` | no | One value or a list: the exact words that mean "stop" on a bit-coded command register (an Eaton fieldbus control word stops on `768`). Writes of these values are stop-class whatever `safe_direction` says. |
+| `stop_value` | no | One value or a list: the exact words that mean "stop" on a bit-coded command register (an Eaton fieldbus control word stops on `768`). Raw register units; hex strings such as `"0x0300"` are accepted. Writes of these values are stop-class whatever `safe_direction` says. A `talos.map/1` file from `talos-importer` loads directly and its `bits.stop_word` is honoured the same way. |
 | `is_trap` | no | Same as `cls: trap`. |
 | `ttl_s` | no | How long a cached read stays servable. Default 2 s. |
 

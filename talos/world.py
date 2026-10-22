@@ -30,11 +30,44 @@ class TagInfo:
     node_id: str | None = None    # OPC UA
 
 
-def _stop_values(v) -> tuple[float, ...] | None:
+def _stop_values(v, tag: str = "?") -> tuple[float, ...] | None:
+    """`stop_value`: one raw register value or a list; strings may be hex ("0x0300")."""
     if v is None:
         return None
     vals = v if isinstance(v, (list, tuple)) else [v]
-    return tuple(float(x) for x in vals) or None
+    out = []
+    for x in vals:
+        try:
+            out.append(float(int(x, 0)) if isinstance(x, str) else float(x))
+        except (TypeError, ValueError) as e:
+            raise ValueError(f"{tag}: stop_value {x!r} is not a number") from e
+    return tuple(out) or None
+
+
+_MAP1_KINDS = {"hr": "holding", "ir": "input", "co": "coil", "di": "discrete"}
+
+
+def _map1_to_tags(d: dict) -> dict:
+    """A `talos.map/1` document (what talos-importer writes) as world tags. `bits.stop_word` becomes the stop value."""
+    dev = d.get("device") or {}
+    asset = str(dev.get("family") or dev.get("product") or "device")
+    tags = {}
+    for r in d.get("registers", []):
+        if not r.get("exposed", True):
+            continue
+        name = r.get("name") or f"{r.get('kind', 'hr')}{r['address']}"
+        t = {"asset": asset, "cls": r.get("cls", "unknown"),
+             "modbus": {"kind": _MAP1_KINDS.get(r.get("kind", "hr"), "holding"), "address": r["address"], "scale": r.get("scale", 1.0)},
+             "writable_while_running": r.get("writable_while_running", True), "safe_direction": r.get("safe_direction", "none")}
+        if r.get("min") is not None and r.get("max") is not None:
+            t["limits"] = [r["min"], r["max"]]
+        if r.get("envelope"):
+            t["envelope"] = r["envelope"]
+        bits = r.get("bits")
+        if isinstance(bits, dict) and bits.get("stop_word") is not None:
+            t["stop_value"] = bits["stop_word"]
+        tags[f"t:{name}"] = t
+    return tags
 
 
 @dataclass
@@ -86,6 +119,8 @@ class World:
     def from_dict(cls, d: dict) -> World:
         w = cls(plant_id=str(d.get("plant_id", "plant")), modbus_port=d.get("modbus_port"), opcua_port=d.get("opcua_port"))
         tags = d.get("tags")
+        if tags is None and isinstance(d.get("registers"), list) and str(d.get("schema", "")).startswith("talos.map"):
+            tags = _map1_to_tags(d)
         if tags is None:   # flat form: every dict value with a "modbus" or "cls" key is a tag
             tags = {k: v for k, v in d.items() if isinstance(v, dict) and ("modbus" in v or "cls" in v)}
         for tag, v in tags.items():
@@ -103,7 +138,7 @@ class World:
                 limits=tuple(lim) if lim else None, envelope=tuple(env) if env else None,
                 writable_while_running=bool(v.get("writable_while_running", True)),
                 safe_direction=SafeDirection(v.get("safe_direction", "none")),
-                stop_values=_stop_values(v.get("stop_value", v.get("stop_values"))),
+                stop_values=_stop_values(v.get("stop_value"), tag),
                 is_trap=bool(v.get("is_trap", False)) or rc == RegClass.trap,
                 ttl_s=float(v.get("ttl_s", 2.0)),
                 node_id=(v.get("opcua") or {}).get("node_id", v.get("node_id")),

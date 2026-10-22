@@ -117,8 +117,10 @@ def is_safe_direction(request: Request, tag: TagInfo | None, current: float | No
     """A write that moves the asset toward its safe state (stop, zero, closed)."""
     if request.op != Op.write or request.value is None:
         return False
-    if tag is not None and tag.stop_values and float(request.value) in tag.stop_values:
-        return True   # a declared stop word (e.g. 0x0300 on a fieldbus control register)
+    if tag is not None and tag.stop_values:
+        raw = float(request.value) * (tag.scale or 1.0)   # the gate judges engineering units; stop words are raw register values
+        if any(abs(raw - s) < 1e-6 for s in tag.stop_values):
+            return True   # a declared stop word (e.g. 0x0300 on a fieldbus control register)
     sd = tag.safe_direction if tag else request.target.safe_direction
     if sd == SafeDirection.none:
         return False
@@ -234,7 +236,10 @@ class Fastpath:
         bucket = agent.buckets.get(op_class(request.op))
         if bucket is not None:
             r.budget_frac = round(bucket.frac_used(), 3)
-            if not bucket.take(now, 1.0):   # per request, not per register: a block poll is one round trip
+            # one wire frame = one token (an HMI block poll is one round trip); a read wider than 16 registers pays one
+            # token per 16 so an address sweep still runs into the budget. Later registers of one frame charge nothing.
+            cost = 0.0 if not request.budget_charge else (float(-(-max(1, request.count) // 16)) if request.op in READ_OPS else 1.0)
+            if not bucket.take(now, cost):
                 r.over_budget = True
                 r.retry_after_ms = int(1000 * bucket.retry_after_s(now)) + 50
                 if not safe:

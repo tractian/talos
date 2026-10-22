@@ -357,3 +357,70 @@ def test_stop_value_on_bit_coded_command_bypasses_model():
     d_stop = g.decide(stop, PlantState.from_dict({"assets": {"vfd": "running"}}))
     assert d_stop.action == Action.allow and d_stop.by == "fastpath" and "fastpath:stop_bypass" in d_stop.reasons
     assert j.calls == 1                                                  # the stop never reached the model
+
+
+async def test_second_request_falls_back_while_judge_busy_without_spawning():
+    import asyncio
+    j = SlowJudge(0.3)
+    g, c = mk_gate(judge=j, model_deadline_ms=20)
+    a = g.decide_async(req(op=Op.write, tag="t:pump1.speed_ref", value=4300.0), plant())
+    b = g.decide_async(req(op=Op.write, tag="t:pump1.speed_ref", value=4350.0), plant())
+    t0 = asyncio.get_running_loop().time()
+    da, db = await asyncio.gather(a, b)
+    assert da.by == "fallback" and db.by == "fallback"
+    assert asyncio.get_running_loop().time() - t0 < 0.15        # neither waited for the 300 ms thread
+    assert j.calls == 1 and g.stats["model_busy"] == 1           # the busy one never queued a second inference
+    await asyncio.sleep(0.35)
+
+
+def test_block_write_charges_one_token_per_frame():
+    # normal tier: 30 writes/min, burst 5. A 6-register block write is judged per register but billed once.
+    g, c = mk_gate()
+    for i in range(6):
+        r = req(op=Op.write, tag="t:pump1.speed_ref", value=4000.0 + i); r.budget_charge = i == 0
+        d = g.decide(r, plant())
+        assert "fastpath:over_budget" not in d.reasons, (i, d.reasons)
+    g2, _ = mk_gate()
+    seen_budget = False
+    for i in range(7):
+        d = g2.decide(req(op=Op.write, tag="t:pump1.speed_ref", value=4000.0 + i), plant())   # 7 separate frames
+        seen_budget = seen_budget or "fastpath:over_budget" in d.reasons
+    assert seen_budget
+
+
+def test_wide_block_reads_still_hit_the_budget():
+    g, c = mk_gate()
+    deferred = False
+    for _ in range(4):                       # 125 registers = 8 tokens each; burst capacity is 20
+        r = req(op=Op.read, tag="t:pump1.speed_fb", value=None); r.count = 125
+        deferred = deferred or "fastpath:over_budget" in g.decide(r, PlantState()).reasons
+    assert deferred
+
+
+def test_stop_value_is_in_raw_units_and_accepts_hex():
+    world = World.from_dict({"tags": {
+        "t:vfd.cw": {"asset": "vfd", "cls": "command", "modbus": {"kind": "holding", "address": 2000, "scale": 10}, "stop_value": "0x0300"}}})
+    assert world.tags["t:vfd.cw"].stop_values == (768.0,)
+    g = Gate(GateConfig(), world=world, judge=FixedJudge(action={"allow": 0.0, "cache": 0.0, "defer": 0.0, "deny": 1.0}))
+    g.registry.register("a:op", role="operator", tier=Tier.normal, now=0.0)
+    d = g.decide(Request(agent_id="a:op", protocol=Protocol.modbus, op=Op.write, target=Target(tag="t:vfd.cw"), value=76.8), PlantState())
+    assert d.action == Action.allow and "fastpath:stop_bypass" in d.reasons     # 76.8 eng * scale 10 = raw 768
+    try:
+        World.from_dict({"tags": {"t:x": {"cls": "command", "modbus": {"kind": "holding", "address": 1}, "stop_value": "stop"}}})
+        raise AssertionError("should have raised")
+    except ValueError as e:
+        assert "t:x" in str(e)
+
+
+def test_talos_map1_document_loads_with_stop_word():
+    doc = {"schema": "talos.map/1", "layer": "plant", "device": {"family": "powerxl"}, "roles": {},
+           "registers": [
+               {"address": 2000, "kind": "hr", "name": "a1b2c3d4e5", "cls": "command", "safe_direction": "none", "scale": 1.0,
+                "writable_while_running": True, "bits": {"run": 0, "mask": 1, "run_word": 769, "stop_word": 768}},
+               {"address": 2002, "kind": "hr", "name": "f6e5d4c3b2", "cls": "setpoint", "safe_direction": "down", "scale": 1.0,
+                "min": 0, "max": 10000, "envelope": [500, 6000], "writable_while_running": True},
+               {"address": 9, "kind": "hr", "name": "0000000000", "cls": "diagnostic", "exposed": False}]}
+    w = World.from_dict(doc)
+    assert set(w.tags) == {"t:a1b2c3d4e5", "t:f6e5d4c3b2"}
+    assert w.tags["t:a1b2c3d4e5"].stop_values == (768.0,) and w.tags["t:f6e5d4c3b2"].limits == (0, 10000)
+    assert w.tags["t:a1b2c3d4e5"].address == 2000 and w.tags["t:a1b2c3d4e5"].kind == "holding"

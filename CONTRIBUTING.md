@@ -11,7 +11,7 @@ make test
 make lint
 ```
 
-Python 3.11 or newer (onnxruntime dropped 3.10). Tests run in a few seconds and need no weights; the ONNX tests skip when `weights/` is absent (`make weights` fetches them).
+Python 3.10 or newer: 3.10 is what JetPack / Ubuntu 22.04 edge boxes ship, so it stays in CI (onnxruntime 1.23 is the last build for it). Tests run in a few seconds and need no weights; the ONNX tests skip when `weights/` is absent (`make weights` fetches them).
 
 ## What helps most
 

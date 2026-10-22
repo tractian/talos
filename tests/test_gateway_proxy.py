@@ -2,6 +2,7 @@
 # Copyright 2026 TRACTIAN
 import asyncio
 import contextlib
+import json
 import socket
 import struct
 from pathlib import Path
@@ -201,3 +202,61 @@ async def test_proxy_slow_judge_degrades_instead_of_dropping(tmp_path):
     finally:
         await stop_stack(server, srv_task, psrv, up)
         gate.ledger.close()
+
+
+async def test_bookkeeping_error_after_forward_does_not_fail_a_landed_write(tmp_path):
+    server, srv_task, psrv, proxy, gate, port, up = await start_stack(tmp_path)
+    try:
+        def boom(*a, **k):
+            raise RuntimeError("bookkeeping bug")
+        gate.observe_write = boom
+        c = AsyncModbusTcpClient("127.0.0.1", port=port)
+        await c.connect()
+        w = await c.write_register(100, 4250)
+        assert not w.isError()                                  # the controller executed it and the client is told so
+        r = await up.read_holding_registers(100, count=1)
+        assert r.registers == [4250]
+        assert proxy.counts["errors"] == 1
+        c.close()
+    finally:
+        await stop_stack(server, srv_task, psrv, up)
+        gate.ledger.close()
+
+
+async def test_dead_upstream_closes_the_client(tmp_path):
+    """The controller side vanishing must reach the client as a disconnect, not as an endless stream of deny frames."""
+    async def slam(reader, writer):
+        writer.close()
+    dead = await asyncio.start_server(slam, "127.0.0.1", 0)
+    dport = dead.sockets[0].getsockname()[1]
+    gate = Gate(GateConfig(), world=World.load(FIX), judge=FixedJudge(), ledger=Ledger(tmp_path / "l.jsonl"))
+    proxy = ModbusProxy(gate, ("127.0.0.1", dport), gate.world, plant_state_fn=lambda: PlantState())
+    psrv = await asyncio.start_server(proxy.handle, "127.0.0.1", 0)
+    pport = psrv.sockets[0].getsockname()[1]
+    try:
+        r, w = await asyncio.open_connection("127.0.0.1", pport)
+        w.write(struct.pack(">HHHB", 1, 0, 6, 1) + bytes([3, 0, 100, 0, 1])); await w.drain()
+        data = await asyncio.wait_for(r.read(64), timeout=2.0)
+        assert data == b""                                       # closed, no exception frame
+        w.close()
+    finally:
+        psrv.close(); dead.close()
+        gate.ledger.close()
+
+
+async def test_error_frames_are_ledgered(tmp_path):
+    server, srv_task, psrv, proxy, gate, port, up = await start_stack(tmp_path)
+    try:
+        async def boom(*a, **k):
+            raise RuntimeError("gate bug")
+        proxy._process = boom
+        c = AsyncModbusTcpClient("127.0.0.1", port=port)
+        await c.connect()
+        r = await c.read_holding_registers(100, count=1)
+        assert r.isError() and proxy.counts["denied"] == 1
+        c.close()
+        gate.ledger.close()
+        rows = [json.loads(line) for line in (tmp_path / "ledger.jsonl").read_text().splitlines() if line.strip()]
+        assert rows and rows[-1]["by"] == "error" and rows[-1]["reasons"] == ["proxy_error:RuntimeError"]
+    finally:
+        await stop_stack(server, srv_task, psrv, up)
