@@ -35,7 +35,7 @@ model-index:
 
 The 5 MB version of Talos-0.8B. Same questions, same closed vocabulary, same calibrated output shape, distilled from the 0.8B teacher so it runs inside the gate on a CPU in about 5 ms. This is what `talos-proxy` ships with.
 
-Code, proxy, docs: https://github.com/canyon-tractian/talos-public
+Code, proxy, docs: https://github.com/tractian/talos
 
 ## Model description
 

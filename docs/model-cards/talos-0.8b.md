@@ -36,7 +36,7 @@ model-index:
 
 A System One decision model for the plant floor. Given one request from a client (an AI agent, a script, an operator screen) to an industrial controller, plus what the gateway knows at that instant, it answers ten typed questions in a single forward pass and returns calibrated probabilities. It does not generate text and cannot be prompted.
 
-Code, proxy, docs: https://github.com/canyon-tractian/talos-public
+Code, proxy, docs: https://github.com/tractian/talos
 
 ## Model description
 

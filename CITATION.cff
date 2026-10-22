@@ -10,8 +10,8 @@ authors:
 version: 0.1.0
 date-released: "2026-10-22"
 license: Apache-2.0
-repository-code: https://github.com/canyon-tractian/talos-public
-url: https://github.com/canyon-tractian/talos-public
+repository-code: https://github.com/tractian/talos
+url: https://github.com/tractian/talos
 keywords:
   - decision-model
   - system-one

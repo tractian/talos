@@ -1,7 +1,7 @@
 <p align="center"><img src="docs/assets/talos-wordmark.svg" alt="Talos" width="360"></p>
 
 <p align="center">
-<a href="https://github.com/canyon-tractian/talos-public/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/canyon-tractian/talos-public/ci.yml?style=for-the-badge&labelColor=000000" height="28"></a>
+<a href="https://github.com/tractian/talos/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/tractian/talos/ci.yml?style=for-the-badge&labelColor=000000" height="28"></a>
 <a href="https://huggingface.co/tractian-ai/talos-0.8b"><img alt="Weights: Talos-0.8B and student int8" src="https://img.shields.io/badge/WEIGHTS-0.8B%20%C2%B7%20student%20int8-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>
 <a href="https://pypi.org/project/talos-gate/"><img alt="PyPI" src="https://img.shields.io/pypi/v/talos-gate?style=for-the-badge&labelColor=000000" height="28"></a>
 <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-0a0a0a.svg?style=for-the-badge&labelColor=000000" height="28"></a>

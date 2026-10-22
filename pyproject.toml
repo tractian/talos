@@ -32,9 +32,9 @@ talos-importer = "talos.importers.__main__:main"
 talos-pull = "talos.weights:main"
 
 [project.urls]
-Homepage = "https://github.com/canyon-tractian/talos-public"
-Repository = "https://github.com/canyon-tractian/talos-public"
-Issues = "https://github.com/canyon-tractian/talos-public/issues"
+Homepage = "https://github.com/tractian/talos"
+Repository = "https://github.com/tractian/talos"
+Issues = "https://github.com/tractian/talos/issues"
 
 [tool.setuptools.packages.find]
 include = ["talos*"]

@@ -5,7 +5,7 @@ Thanks for looking. Talos is small on purpose: a typed schema, a handful of dete
 ## Setup
 
 ```bash
-git clone https://github.com/canyon-tractian/talos-public.git talos && cd talos
+git clone https://github.com/tractian/talos.git talos && cd talos
 make dev          # venv + editable install with dev, onnx, http, modbus extras
 make test
 make lint
