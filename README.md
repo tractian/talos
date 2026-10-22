@@ -34,7 +34,7 @@ Tested on a plant type and three agent types the model never saw in training (15
 | bad requests caught | **98%** (1,043 of 1,062) |
 | good requests wrongly blocked | **0.6%** (84 of 14,531) |
 | right when confident (80% of requests) | **99.0%** |
-| with no register map at all | catches **98%**, wrongly blocks **1.0%** (0.2% with a map) |
+| register map off vs on | catch rate **−0.3 pts**, false blocks **+0.8 pts** |
 
 Twenty agents hammering one pump station for 60 s, with and without Talos in the path:
 
