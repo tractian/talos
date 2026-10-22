@@ -15,7 +15,7 @@ agents; register them with `talos-proxy --agent NAME=127.0.0.1:UNIT:ROLE` or wat
 What comes back from the proxy: a normal response (ok), Modbus exception 0x04 (Talos denied), 0x06 (Talos deferred:
 over budget / quarantined, retry later), 0x01 (illegal function), or a closed connection (agent blocked).
 
-Needs: pip install "talos-gate[modbus]"   (pymodbus client only; the gate is not imported here)
+Needs: pip install "talos-gate[modbus] @ git+https://github.com/tractian/talos"   (pymodbus client only; the gate is not imported here)
 """
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ class PlantClient:
         try:
             from pymodbus.client import AsyncModbusTcpClient
         except ImportError:
-            raise SystemExit("pymodbus is required: pip install 'talos-gate[modbus]'") from None
+            raise SystemExit("pymodbus is required: pip install 'talos-gate[modbus] @ git+https://github.com/tractian/talos'") from None
         self.client = AsyncModbusTcpClient(self.host, port=self.port)
         if not await self.client.connect():
             raise SystemExit(f"cannot connect to {self.host}:{self.port} (is the proxy running?)")

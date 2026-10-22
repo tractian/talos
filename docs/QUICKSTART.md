@@ -3,7 +3,7 @@
 Five minutes, one laptop, no PLC. A fake controller, Talos in front of it, and a misbehaving client.
 
 ```bash
-pip install "talos-gate[onnx,modbus]"   # the package is talos-gate; the import is talos
+pip install "talos-gate[onnx,modbus] @ git+https://github.com/tractian/talos"   # the import is talos
 talos-pull                      # downloads the weights into ./weights
 ```
 

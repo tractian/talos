@@ -11,7 +11,7 @@ each tag's envelope. If the world file does not exist it is generated (fixed see
 so the proxy and the agent can read the same map. Every write that reaches the PLC is printed: with the proxy in
 front, the ones Talos denies never show up here.
 
-Needs: pip install "talos-gate[modbus]"   (only pymodbus is used; the gate itself is not imported here)
+Needs: pip install "talos-gate[modbus] @ git+https://github.com/tractian/talos"   (only pymodbus is used; the gate itself is not imported here)
 """
 from __future__ import annotations
 
@@ -90,7 +90,7 @@ class FakePlc:
             from pymodbus.datastore import ModbusDeviceContext, ModbusSequentialDataBlock, ModbusServerContext
             from pymodbus.server import ModbusTcpServer
         except ImportError:
-            raise SystemExit("pymodbus is required: pip install 'talos-gate[modbus]'") from None
+            raise SystemExit("pymodbus is required: pip install 'talos-gate[modbus] @ git+https://github.com/tractian/talos'") from None
         logging.getLogger("pymodbus").setLevel(logging.ERROR)   # 3.x prints datastore deprecation notes otherwise
         hr, ir, co = [0] * 65536, [0] * 65536, [0] * 65536
         for t in self.world["tags"].values():
