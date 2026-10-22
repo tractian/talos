@@ -52,7 +52,7 @@ jobs:
         run: |
           awk '/^## /{n++} n==2{print} n==3{exit}' CHANGELOG.md > notes.md || true
           [ -s notes.md ] || echo "See CHANGELOG.md" > notes.md
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           body_path: notes.md
           files: |
