@@ -24,9 +24,17 @@ class TagInfo:
     envelope: tuple[float, float] | None = None
     writable_while_running: bool = True
     safe_direction: SafeDirection = SafeDirection.none
+    stop_values: tuple[float, ...] | None = None   # exact values that mean "stop" on a bit-coded command register
     is_trap: bool = False
     ttl_s: float = 2.0               # read freshness window
     node_id: str | None = None    # OPC UA
+
+
+def _stop_values(v) -> tuple[float, ...] | None:
+    if v is None:
+        return None
+    vals = v if isinstance(v, (list, tuple)) else [v]
+    return tuple(float(x) for x in vals) or None
 
 
 @dataclass
@@ -95,6 +103,7 @@ class World:
                 limits=tuple(lim) if lim else None, envelope=tuple(env) if env else None,
                 writable_while_running=bool(v.get("writable_while_running", True)),
                 safe_direction=SafeDirection(v.get("safe_direction", "none")),
+                stop_values=_stop_values(v.get("stop_value", v.get("stop_values"))),
                 is_trap=bool(v.get("is_trap", False)) or rc == RegClass.trap,
                 ttl_s=float(v.get("ttl_s", 2.0)),
                 node_id=(v.get("opcua") or {}).get("node_id", v.get("node_id")),

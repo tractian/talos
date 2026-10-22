@@ -16,7 +16,7 @@ gate = Gate(cfg, world=None)        # world=None is blind mode
 | field | default | meaning |
 |---|---|---|
 | `stop_bypass` | `True` | A write in the register's safe direction (a stop, a slow-down, a close) skips the model and is allowed. Off: it still goes through the model, but `deny` is only possible for `quarantine` and `blocked` agents. |
-| `model_deadline_ms` | `20.0` | Hard deadline for the model answer. On timeout the fastpath verdict stands. |
+| `model_deadline_ms` | `20.0` | Hard deadline for the model answer. On timeout the fastpath verdict stands (a read is served from cache, a write is deferred as busy); the client is never disconnected. Small CPUs that clock down between requests want 100 to 200. |
 | `on_model_failure` | `"defer"` | What a request with no fastpath verdict gets when the model fails: `defer` (safe) or `fastpath_only` (allow and flag). |
 | `decision_cache_ttl_s` | `2.0` | An identical request from the same agent inside this window replays the last decision. |
 | `value_ttl_s` | `2.0` | Default freshness for serving reads from cache; a tag's own `ttl_s` wins. |
@@ -25,7 +25,7 @@ gate = Gate(cfg, world=None)        # world=None is blind mode
 | `shadow` | `False` | Judge and log, never block. Every decision is recorded with what Talos would have done. Use this for the first days on a real network. |
 | `fastpath` | `FastpathConfig()` | See below. |
 | `policy` | `PolicyConfig()` | See below. |
-| `budgets` | `DEFAULT_BUDGETS` | Per-tier request budgets, see Tiers. |
+| `budgets` | `DEFAULT_BUDGETS` | Per-tier request budgets, see Tiers. One request costs one token whatever its register count: an HMI polling a 10-register block pays for one round trip. |
 
 ## FastpathConfig (`talos/fastpath.py`)
 

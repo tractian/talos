@@ -293,3 +293,67 @@ def test_trusted_read_fast_lane_is_opt_in():
     assert j.calls == 0
     d = g.decide(req(agent="a:good", op=Op.read, tag="t:pump1.speed_fb", value=None), PlantState())
     assert j.calls == 1   # a normal-tier read still consults the model
+
+
+# --- bench regressions (2026-10-22, real Eaton DM1 on a Python 3.10 Jetson) ---
+
+class SlowJudge:
+    """Takes longer than the deadline; the gate must fall back, never raise."""
+    name = "slow"
+
+    def __init__(self, delay_s=0.2):
+        self.delay_s = delay_s; self.calls = 0
+
+    def judge(self, body, deadline_s=None):
+        import time as _t
+        self.calls += 1; _t.sleep(self.delay_s)
+        return FixedJudge().judge(body, deadline_s)
+
+
+class CrashingJudge:
+    name = "crash"
+
+    def judge(self, body, deadline_s=None):
+        raise RuntimeError("onnxruntime exploded")
+
+
+async def test_judge_timeout_falls_back_instead_of_raising():
+    import asyncio
+    g, c = mk_gate(judge=SlowJudge(0.2), model_deadline_ms=20)
+    d = await g.decide_async(req(op=Op.write, tag="t:pump1.speed_ref", value=4300.0), plant())
+    assert d.by == "fallback" and d.action in (Action.defer, Action.allow)
+    assert any("model_failure:JudgeTimeout" in r for r in d.reasons)
+    await asyncio.sleep(0.25)   # let the worker thread finish before the loop closes
+
+
+async def test_judge_crash_is_a_model_failure_not_an_exception():
+    g, c = mk_gate(judge=CrashingJudge())
+    d = await g.decide_async(req(op=Op.write, tag="t:pump1.speed_ref", value=4300.0), plant())
+    assert d.by == "fallback" and any("model_failure:JudgeError" in r for r in d.reasons)
+    d2 = g.decide(req(op=Op.write, tag="t:pump1.speed_ref", value=4300.0), plant())   # sync path too
+    assert d2.by == "fallback"
+
+
+def test_block_read_costs_one_budget_token_not_count():
+    # normal tier: 120 reads/min, burst capacity 20. Three 11-register polls used to cost 33 tokens and get deferred.
+    g, c = mk_gate()
+    for _ in range(3):
+        r = req(op=Op.read, tag="t:pump1.speed_fb", value=None); r.count = 11
+        d = g.decide(r, PlantState())
+        assert "fastpath:over_budget" not in d.reasons and d.action in (Action.allow, Action.cache)
+
+
+def test_stop_value_on_bit_coded_command_bypasses_model():
+    j = FixedJudge(action={"allow": 0.0, "cache": 0.0, "defer": 0.0, "deny": 1.0})   # a model that would deny everything
+    world = World.from_dict({"assets": {"vfd": {"kind": "vfd_motor"}}, "tags": {
+        "t:vfd.control_word": {"asset": "vfd", "cls": "command", "modbus": {"kind": "holding", "address": 2000},
+                               "limits": [0, 65535], "stop_value": [768, 0]}}})
+    g = Gate(GateConfig(), world=world, judge=j)
+    g.registry.register("a:op", role="operator", tier=Tier.normal, now=0.0)
+    run = Request(agent_id="a:op", protocol=Protocol.modbus, op=Op.write, target=Target(tag="t:vfd.control_word"), value=769.0)
+    stop = Request(agent_id="a:op", protocol=Protocol.modbus, op=Op.write, target=Target(tag="t:vfd.control_word"), value=768.0)
+    d_run = g.decide(run, PlantState.from_dict({"assets": {"vfd": "stopped"}}))
+    assert d_run.by == "model" and d_run.action == Action.deny          # the run word is the model's call
+    d_stop = g.decide(stop, PlantState.from_dict({"assets": {"vfd": "running"}}))
+    assert d_stop.action == Action.allow and d_stop.by == "fastpath" and "fastpath:stop_bypass" in d_stop.reasons
+    assert j.calls == 1                                                  # the stop never reached the model

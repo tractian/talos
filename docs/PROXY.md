@@ -20,7 +20,7 @@ Clients then connect to `<proxy host>:15502`. Nothing changes on the PLC.
 | `--ledger PATH` | `talos-ledger.jsonl` | the record, see `LEDGER.md` |
 | `--shadow` | off | judge and log, never block |
 | `--no-stop-bypass` | off | stops and safe-direction writes also go through the model |
-| `--deadline-ms N` | `20` | model deadline; on timeout the rules decide |
+| `--deadline-ms N` | `20` | model deadline; on timeout the rules decide and the client stays connected. Use 100 to 200 on a small CPU such as a Jetson or Pi |
 | `--deny-exception N` | `4` | Modbus exception code returned on deny: `4` (server device failure) or `2` (illegal data address) |
 | `--report-every N` | `0` | print a decision summary every N requests |
 | `--agent ID=IP:UNIT[:ROLE]` | | register a client (repeatable). Registered agents get the normal budget and can earn `trusted`; unregistered sources get a small budget. |

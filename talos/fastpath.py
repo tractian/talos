@@ -117,6 +117,8 @@ def is_safe_direction(request: Request, tag: TagInfo | None, current: float | No
     """A write that moves the asset toward its safe state (stop, zero, closed)."""
     if request.op != Op.write or request.value is None:
         return False
+    if tag is not None and tag.stop_values and float(request.value) in tag.stop_values:
+        return True   # a declared stop word (e.g. 0x0300 on a fieldbus control register)
     sd = tag.safe_direction if tag else request.target.safe_direction
     if sd == SafeDirection.none:
         return False
@@ -232,7 +234,7 @@ class Fastpath:
         bucket = agent.buckets.get(op_class(request.op))
         if bucket is not None:
             r.budget_frac = round(bucket.frac_used(), 3)
-            if not bucket.take(now, max(1.0, float(request.count) if request.op in READ_OPS else 1.0)):
+            if not bucket.take(now, 1.0):   # per request, not per register: a block poll is one round trip
                 r.over_budget = True
                 r.retry_after_ms = int(1000 * bucket.retry_after_s(now)) + 50
                 if not safe:

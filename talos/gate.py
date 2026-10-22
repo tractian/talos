@@ -104,6 +104,8 @@ class Gate:
             res = (self.judge.judge(body, deadline_s=deadline), None)
         except JudgeError as e:
             res = (None, e)
+        except Exception as e:  # noqa: BLE001 - a crashing judge is a model failure, never an exception to the caller
+            res = (None, JudgeError(f"{type(e).__name__}: {e}"))
         try:
             gen.send(res)
         except StopIteration as done:
@@ -125,8 +127,10 @@ class Gate:
             res = (answers, None)
         except JudgeError as e:
             res = (None, e)
-        except TimeoutError:
+        except (TimeoutError, asyncio.TimeoutError):  # noqa: UP041 - separate classes before Python 3.11
             res = (None, JudgeTimeout(f"deadline {deadline:.3f}s"))
+        except Exception as e:  # noqa: BLE001 - a crashing judge is a model failure, never a dropped client
+            res = (None, JudgeError(f"{type(e).__name__}: {e}"))
         try:
             gen.send(res)
         except StopIteration as done:

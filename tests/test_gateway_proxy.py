@@ -154,3 +154,50 @@ async def test_proxy_busy_on_budget(tmp_path):
     finally:
         await stop_stack(server, srv_task, psrv, up)
         gate.ledger.close()
+
+
+async def test_proxy_keeps_connection_when_judging_raises(tmp_path):
+    """Bench regression: an exception while judging one frame used to drop the client mid-sequence (a stop never landed).
+    Now that frame gets a Modbus exception and the next frame is served."""
+    server, srv_task, psrv, proxy, gate, port, up = await start_stack(tmp_path)
+    try:
+        real = proxy._process
+        state = {"boom": True}
+
+        async def flaky(*a, **k):
+            if state["boom"]:
+                state["boom"] = False
+                raise RuntimeError("simulated gate bug")
+            return await real(*a, **k)
+        proxy._process = flaky
+        c = AsyncModbusTcpClient("127.0.0.1", port=port)
+        await c.connect()
+        r1 = await c.read_holding_registers(100, count=1)
+        assert r1.isError()                                   # that frame answered with an exception...
+        r2 = await c.read_holding_registers(100, count=1)
+        assert not r2.isError() and r2.registers == [4000]    # ...and the connection survived
+        assert proxy.counts["errors"] == 1
+        c.close()
+    finally:
+        await stop_stack(server, srv_task, psrv, up)
+        gate.ledger.close()
+
+
+async def test_proxy_slow_judge_degrades_instead_of_dropping(tmp_path):
+    import time as _t
+
+    class Slow(FixedJudge):
+        def judge(self, body, deadline_s=None):
+            _t.sleep(0.15); return super().judge(body, deadline_s)
+    server, srv_task, psrv, proxy, gate, port, up = await start_stack(tmp_path, judge=Slow())   # deadline 50 ms in start_stack
+    try:
+        c = AsyncModbusTcpClient("127.0.0.1", port=port)
+        await c.connect()
+        w = await c.write_register(100, 4100)
+        assert w.isError() and w.exception_code == 6          # busy (defer), not a dropped socket
+        r = await c.read_holding_registers(100, count=1)
+        assert r.registers == [4000] or r.isError()           # still talking on the same connection
+        c.close(); await asyncio.sleep(0.3)
+    finally:
+        await stop_stack(server, srv_task, psrv, up)
+        gate.ledger.close()

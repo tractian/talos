@@ -105,7 +105,7 @@ class ModbusProxy:
         self.plant_state_fn = plant_state_fn or (lambda: PlantState())
         self.latencies: list[float] = []     # proxy-added ms per request (decision + bookkeeping, excluding upstream RTT)
         self.total: list[float] = []         # end-to-end ms per request
-        self.counts = {"requests": 0, "served_cache": 0, "forwarded": 0, "denied": 0, "deferred": 0, "closed": 0, "unknown_fc": 0}
+        self.counts = {"requests": 0, "served_cache": 0, "forwarded": 0, "denied": 0, "deferred": 0, "closed": 0, "unknown_fc": 0, "errors": 0}
         self.asset_state_fn = None
 
     @staticmethod
@@ -143,7 +143,15 @@ class ModbusProxy:
                 tid, pid, length, uid = struct.unpack(">HHHB", hdr)
                 pdu = await reader.readexactly(length - 1)
                 t0 = time.perf_counter()
-                resp, close = await self._process(tid, uid, pdu, {"ip": src_ip, "unit": uid}, up_r, up_w, t0)
+                try:
+                    resp, close = await self._process(tid, uid, pdu, {"ip": src_ip, "unit": uid}, up_r, up_w, t0)
+                except (asyncio.IncompleteReadError, ConnectionResetError, BrokenPipeError):
+                    raise   # the controller side went away: nothing to answer with
+                except Exception as e:  # noqa: BLE001 - never drop a client over a gate bug; answer this frame and go on
+                    self.counts["errors"] += 1
+                    if self.counts["errors"] <= 5:
+                        print(f"[talos-proxy] error judging frame from {src_ip}: {type(e).__name__}: {e}", file=sys.stderr)
+                    resp, close = exception_frame(tid, uid, pdu[0] if pdu else 0, self.deny_exception), False
                 if resp:
                     writer.write(resp)
                     await writer.drain()
