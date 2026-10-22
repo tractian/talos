@@ -1,0 +1,842 @@
+{
+ "plant_id": "example-plant",
+ "modbus_port": 15020,
+ "assets": {
+  "asset1": {
+   "kind": "tank_level_loop"
+  },
+  "asset2": {
+   "kind": "tank_level_loop"
+  },
+  "asset3": {
+   "kind": "vfd_pump"
+  }
+ },
+ "tags": {
+  "t:asset1.setpoint0": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "setpoint",
+   "modbus": {
+    "kind": "holding",
+    "address": 2800,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.setpoint0"
+   },
+   "limits": [
+    0,
+    6000
+   ],
+   "envelope": [
+    3500,
+    4800
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "down",
+   "is_trap": false
+  },
+  "t:asset1.command1": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "command",
+   "modbus": {
+    "kind": "holding",
+    "address": 2801,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.command1"
+   },
+   "limits": [
+    0,
+    1
+   ],
+   "envelope": [
+    0,
+    1
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "down",
+   "is_trap": false
+  },
+  "t:asset1.diagnostic2": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "diagnostic",
+   "modbus": {
+    "kind": "input",
+    "address": 2802,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.diagnostic2"
+   },
+   "limits": [
+    0,
+    6000
+   ],
+   "envelope": [
+    3500,
+    4800
+   ],
+   "writable": false,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset1.diagnostic3": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "diagnostic",
+   "modbus": {
+    "kind": "input",
+    "address": 2803,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.diagnostic3"
+   },
+   "limits": [
+    0,
+    400
+   ],
+   "envelope": [
+    10,
+    120
+   ],
+   "writable": false,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset1.protective4": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "protective",
+   "modbus": {
+    "kind": "holding",
+    "address": 2804,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.protective4"
+   },
+   "limits": [
+    0,
+    6500
+   ],
+   "envelope": [
+    6000,
+    6000
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset1.tuning5": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "tuning",
+   "modbus": {
+    "kind": "holding",
+    "address": 2805,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.tuning5"
+   },
+   "limits": [
+    0,
+    1000
+   ],
+   "envelope": [
+    50,
+    200
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset1.config6": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "config",
+   "modbus": {
+    "kind": "holding",
+    "address": 2806,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.config6"
+   },
+   "limits": [
+    0,
+    60000
+   ],
+   "envelope": [
+    2000,
+    2000
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset1.alarm_limit7": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "alarm_limit",
+   "modbus": {
+    "kind": "holding",
+    "address": 2807,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.alarm_limit7"
+   },
+   "limits": [
+    0,
+    6500
+   ],
+   "envelope": [
+    5000,
+    5500
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset1.interlock8": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "interlock",
+   "modbus": {
+    "kind": "coil",
+    "address": 2808,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.interlock8"
+   },
+   "limits": [
+    0,
+    1
+   ],
+   "envelope": [
+    0,
+    1
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset1.trap9": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "trap",
+   "modbus": {
+    "kind": "holding",
+    "address": 2809,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.trap9"
+   },
+   "limits": [
+    0,
+    65535
+   ],
+   "envelope": [
+    0,
+    0
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": true
+  },
+  "t:asset1.trap10": {
+   "asset": "asset1",
+   "asset_kind": "tank_level_loop",
+   "cls": "trap",
+   "modbus": {
+    "kind": "holding",
+    "address": 2810,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset1.trap10"
+   },
+   "limits": [
+    0,
+    65535
+   ],
+   "envelope": [
+    0,
+    0
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": true
+  },
+  "t:asset2.setpoint0": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "setpoint",
+   "modbus": {
+    "kind": "holding",
+    "address": 2840,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.setpoint0"
+   },
+   "limits": [
+    0,
+    6000
+   ],
+   "envelope": [
+    3500,
+    4800
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "down",
+   "is_trap": false
+  },
+  "t:asset2.command1": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "command",
+   "modbus": {
+    "kind": "holding",
+    "address": 2841,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.command1"
+   },
+   "limits": [
+    0,
+    1
+   ],
+   "envelope": [
+    0,
+    1
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "down",
+   "is_trap": false
+  },
+  "t:asset2.diagnostic2": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "diagnostic",
+   "modbus": {
+    "kind": "input",
+    "address": 2842,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.diagnostic2"
+   },
+   "limits": [
+    0,
+    6000
+   ],
+   "envelope": [
+    3500,
+    4800
+   ],
+   "writable": false,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset2.diagnostic3": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "diagnostic",
+   "modbus": {
+    "kind": "input",
+    "address": 2843,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.diagnostic3"
+   },
+   "limits": [
+    0,
+    400
+   ],
+   "envelope": [
+    10,
+    120
+   ],
+   "writable": false,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset2.protective4": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "protective",
+   "modbus": {
+    "kind": "holding",
+    "address": 2844,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.protective4"
+   },
+   "limits": [
+    0,
+    6500
+   ],
+   "envelope": [
+    6000,
+    6000
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset2.tuning5": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "tuning",
+   "modbus": {
+    "kind": "holding",
+    "address": 2845,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.tuning5"
+   },
+   "limits": [
+    0,
+    1000
+   ],
+   "envelope": [
+    50,
+    200
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset2.config6": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "config",
+   "modbus": {
+    "kind": "holding",
+    "address": 2846,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.config6"
+   },
+   "limits": [
+    0,
+    60000
+   ],
+   "envelope": [
+    2000,
+    2000
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset2.alarm_limit7": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "alarm_limit",
+   "modbus": {
+    "kind": "holding",
+    "address": 2847,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.alarm_limit7"
+   },
+   "limits": [
+    0,
+    6500
+   ],
+   "envelope": [
+    5000,
+    5500
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset2.interlock8": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "interlock",
+   "modbus": {
+    "kind": "coil",
+    "address": 2848,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.interlock8"
+   },
+   "limits": [
+    0,
+    1
+   ],
+   "envelope": [
+    0,
+    1
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset2.trap9": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "trap",
+   "modbus": {
+    "kind": "holding",
+    "address": 2849,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.trap9"
+   },
+   "limits": [
+    0,
+    65535
+   ],
+   "envelope": [
+    0,
+    0
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": true
+  },
+  "t:asset2.trap10": {
+   "asset": "asset2",
+   "asset_kind": "tank_level_loop",
+   "cls": "trap",
+   "modbus": {
+    "kind": "holding",
+    "address": 2850,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset2.trap10"
+   },
+   "limits": [
+    0,
+    65535
+   ],
+   "envelope": [
+    0,
+    0
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": true
+  },
+  "t:asset3.setpoint0": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "setpoint",
+   "modbus": {
+    "kind": "holding",
+    "address": 2880,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.setpoint0"
+   },
+   "limits": [
+    0,
+    6000
+   ],
+   "envelope": [
+    3500,
+    4800
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "down",
+   "is_trap": false
+  },
+  "t:asset3.command1": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "command",
+   "modbus": {
+    "kind": "holding",
+    "address": 2881,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.command1"
+   },
+   "limits": [
+    0,
+    1
+   ],
+   "envelope": [
+    0,
+    1
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "down",
+   "is_trap": false
+  },
+  "t:asset3.diagnostic2": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "diagnostic",
+   "modbus": {
+    "kind": "input",
+    "address": 2882,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.diagnostic2"
+   },
+   "limits": [
+    0,
+    6000
+   ],
+   "envelope": [
+    3500,
+    4800
+   ],
+   "writable": false,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset3.diagnostic3": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "diagnostic",
+   "modbus": {
+    "kind": "input",
+    "address": 2883,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.diagnostic3"
+   },
+   "limits": [
+    0,
+    400
+   ],
+   "envelope": [
+    10,
+    120
+   ],
+   "writable": false,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset3.protective4": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "protective",
+   "modbus": {
+    "kind": "holding",
+    "address": 2884,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.protective4"
+   },
+   "limits": [
+    0,
+    6500
+   ],
+   "envelope": [
+    6000,
+    6000
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset3.tuning5": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "tuning",
+   "modbus": {
+    "kind": "holding",
+    "address": 2885,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.tuning5"
+   },
+   "limits": [
+    0,
+    1000
+   ],
+   "envelope": [
+    50,
+    200
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset3.config6": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "config",
+   "modbus": {
+    "kind": "holding",
+    "address": 2886,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.config6"
+   },
+   "limits": [
+    0,
+    60000
+   ],
+   "envelope": [
+    2000,
+    2000
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset3.alarm_limit7": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "alarm_limit",
+   "modbus": {
+    "kind": "holding",
+    "address": 2887,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.alarm_limit7"
+   },
+   "limits": [
+    0,
+    6500
+   ],
+   "envelope": [
+    5000,
+    5500
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset3.interlock8": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "interlock",
+   "modbus": {
+    "kind": "coil",
+    "address": 2888,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.interlock8"
+   },
+   "limits": [
+    0,
+    1
+   ],
+   "envelope": [
+    0,
+    1
+   ],
+   "writable": true,
+   "writable_while_running": false,
+   "safe_direction": "none",
+   "is_trap": false
+  },
+  "t:asset3.trap9": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "trap",
+   "modbus": {
+    "kind": "holding",
+    "address": 2889,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.trap9"
+   },
+   "limits": [
+    0,
+    65535
+   ],
+   "envelope": [
+    0,
+    0
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": true
+  },
+  "t:asset3.trap10": {
+   "asset": "asset3",
+   "asset_kind": "vfd_pump",
+   "cls": "trap",
+   "modbus": {
+    "kind": "holding",
+    "address": 2890,
+    "scale": 1.0
+   },
+   "opcua": {
+    "node_id": "ns=2;s=asset3.trap10"
+   },
+   "limits": [
+    0,
+    65535
+   ],
+   "envelope": [
+    0,
+    0
+   ],
+   "writable": true,
+   "writable_while_running": true,
+   "safe_direction": "none",
+   "is_trap": true
+  }
+ }
+}

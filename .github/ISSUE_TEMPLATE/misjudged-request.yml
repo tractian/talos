@@ -1,0 +1,42 @@
+name: Misjudged request
+description: Talos allowed something it should have blocked, or blocked something it should have allowed.
+labels: ["model"]
+body:
+  - type: markdown
+    attributes:
+      value: The ledger row is the whole story. Its `state` field is the exact input the model saw and contains no free text.
+  - type: textarea
+    id: row
+    attributes:
+      label: Ledger row(s)
+      description: Paste the JSON line(s) from your ledger for the request. Redact the `tag` name if you want; it is not needed.
+      render: json
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong
+      options:
+        - Blocked a request that should have been allowed
+        - Allowed a request that should have been blocked
+        - Deferred forever / budget never refilled
+        - Wrong tier change (quarantined a good client, or did not quarantine a bad one)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Talos version and weights
+      placeholder: "talos-gate 0.1.0, weights sha256 or Hugging Face revision"
+    validations:
+      required: true
+  - type: textarea
+    id: flags
+    attributes:
+      label: Proxy flags or GateConfig
+      placeholder: "talos-proxy --upstream ... --world ... --weights ..."
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened, and why

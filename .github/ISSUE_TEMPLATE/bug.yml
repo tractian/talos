@@ -1,0 +1,29 @@
+name: Bug
+description: The gate, the proxy, the importer or the tooling misbehaves.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      placeholder: Commands, flags, a map snippet, a client script.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "talos-gate 0.1.0, Python 3.12, macOS / Linux"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output, traceback or ledger rows
+      render: shell

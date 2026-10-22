@@ -1,0 +1,31 @@
+Tag,Description,Units,Range Lo,Range Hi,Alarm Lo,Alarm Hi,Address,Signal Type,Equipment
+P-101_SPD_SP,Transfer pump 1 speed setpoint,Hz,0,60,,,40001,AO,P-101
+P-101_SPD_FB,Transfer pump 1 speed feedback,Hz,0,60,,,30001,AI,P-101
+P-101_RUN_CMD,Transfer pump 1 run command,,0,1,,,00001,DO,P-101
+P-101_AMPS,Transfer pump 1 motor current,A,0,50,,,30002,AI,P-101
+P-101_ACCEL,Transfer pump 1 accel time,s,1,300,,,40002,AO,P-101
+P-101_MAX_HZ,Transfer pump 1 maximum frequency,Hz,10,90,,,40003,AO,P-101
+P-101_FAULT_RST,Transfer pump 1 fault reset,,0,1,,,00002,DO,P-101
+P-101_READY,Transfer pump 1 ready permissive,,0,1,,,10001,DI,P-101
+P-102_SPD_SP,Transfer pump 2 speed setpoint,Hz,0,60,,,40011,AO,P-102
+P-102_SPD_FB,Transfer pump 2 speed feedback,Hz,0,60,,,30011,AI,P-102
+P-102_RUN_CMD,Transfer pump 2 run command,,0,1,,,00011,DO,P-102
+P-102_AMPS,Transfer pump 2 motor current,A,0,50,,,30012,AI,P-102
+P-102_HI_TEMP_ALM,Transfer pump 2 high winding temp alarm limit,C,40,150,,,40012,AO,P-102
+TK-201_LVL,Day tank level,%,0,100,10,90,30021,AI,TK-201
+TK-201_LVL_SP,Day tank level setpoint,%,0,100,,,40021,AO,TK-201
+TK-201_INLET_VLV,Day tank inlet valve command,%,0,100,,,40022,AO,TK-201
+TK-201_HH_TRIP,Day tank high-high trip,%,50,100,,,40023,AO,TK-201
+TK-201_PID_KP,Day tank level PID proportional gain,,0.1,50,,,40024,AO,TK-201
+TK-201_MODE,Day tank auto/manual mode,,0,1,,,00021,DO,TK-201
+E-301_TEMP,Preheater outlet temperature,C,0,250,,,30031,AI,E-301
+E-301_TEMP_SP,Preheater temperature setpoint,C,0,250,,,40031,AO,E-301
+E-301_HEAT_EN,Preheater heater enable,,0,1,,,00031,DO,E-301
+E-301_PWR_LIM,Preheater power limit,%,10,100,,,40032,AO,E-301
+E-301_TSHH,Preheater high-high temperature trip,C,50,300,,,40033,AO,E-301
+C-401_SPD_FB,Conveyor 1 speed feedback,m/min,0,120,,,30041,AI,C-401
+C-401_SPD_SP,Conveyor 1 speed reference,m/min,0,120,,,40041,AO,C-401
+C-401_START,Conveyor 1 start,,0,1,,,00041,DO,C-401
+C-401_JAM_T,Conveyor 1 jam timer,s,0.5,60,,,40042,AO,C-401
+C-401_ESTOP_OK,Conveyor 1 e-stop healthy,,0,1,,,10041,DI,C-401
+C-401_ZONE_BYP,Conveyor 1 zone bypass,,0,1,,,00042,DO,C-401

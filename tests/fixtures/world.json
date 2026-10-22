@@ -1,0 +1,18 @@
+{
+  "plant_id": "fixture-1",
+  "modbus_port": 15020,
+  "assets": {"pump1": {"kind": "vfd_pump"}, "fan1": {"kind": "vfd_fan"}},
+  "tags": {
+    "t:pump1.speed_ref": {"asset": "pump1", "cls": "setpoint", "modbus": {"kind": "holding", "address": 100, "scale": 1},
+                          "limits": [0, 6000], "envelope": [3000, 5000], "writable_while_running": true, "safe_direction": "down"},
+    "t:pump1.run_cmd":   {"asset": "pump1", "cls": "command", "modbus": {"kind": "holding", "address": 101, "scale": 1},
+                          "limits": [0, 1], "writable_while_running": true, "safe_direction": "down"},
+    "t:pump1.speed_fb":  {"asset": "pump1", "cls": "diagnostic", "modbus": {"kind": "input", "address": 200, "scale": 1},
+                          "limits": [0, 6000], "ttl_s": 2.0},
+    "t:pump1.max_freq":  {"asset": "pump1", "cls": "protective", "modbus": {"kind": "holding", "address": 110, "scale": 1},
+                          "limits": [0, 6000], "writable_while_running": false},
+    "t:pump1.trap_a":    {"asset": "pump1", "cls": "trap", "modbus": {"kind": "holding", "address": 150, "scale": 1}, "is_trap": true},
+    "t:fan1.speed_ref":  {"asset": "fan1", "cls": "setpoint", "modbus": {"kind": "holding", "address": 300, "scale": 1},
+                          "limits": [0, 100], "envelope": [40, 90], "safe_direction": "down"}
+  }
+}

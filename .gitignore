@@ -1,0 +1,16 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.onnx
+*.pt
+*.log
+.DS_Store
+weights/
+talos-ledger.jsonl
+talos-llm-cache/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/

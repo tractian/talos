@@ -1,0 +1,10 @@
+Talos
+Copyright 2026 TRACTIAN
+
+The Talos-0.8B weights were trained with Kev
+(https://github.com/jaredpalmer/kev), Copyright 2026 Jared Palmer,
+licensed under the Apache License, Version 2.0.
+
+The Talos-0.8B weights are a LoRA adapter and pointer head trained on
+Qwen3.5-0.8B-Base (https://huggingface.co/Qwen/Qwen3.5-0.8B-Base),
+Copyright Alibaba Cloud, licensed under the Apache License, Version 2.0.

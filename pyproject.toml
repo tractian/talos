@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "talos-gate"
+version = "0.1.0"
+description = "Talos: the traffic cop between AI agents and industrial controllers. Open decision model + gate."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_LICENSES.md"]
+dependencies = [
+  "pydantic>=2",
+  "numpy",
+  "orjson",
+  "pyyaml",
+]
+
+[project.optional-dependencies]
+onnx = ["onnxruntime>=1.17"]
+http = ["httpx"]
+modbus = ["pymodbus>=3.6"]
+dev = ["pytest", "pytest-asyncio", "ruff", "pymodbus>=3.6", "onnxruntime"]
+# everything the private data engine / trainer needs on top of the gate (lab checkout only)
+lab = ["pymodbus>=3.6", "asyncua>=1.1", "openai", "httpx", "torch", "transformers", "peft", "datasets",
+       "lightgbm", "scikit-learn", "onnxruntime", "onnx", "pandas", "pyarrow"]
+
+[project.scripts]
+talos-proxy = "talos.gateway.modbus_proxy:main"
+talos-importer = "talos.importers.__main__:main"
+talos-pull = "talos.weights:main"
+
+[project.urls]
+Homepage = "https://github.com/canyon-tractian/talos-public"
+Repository = "https://github.com/canyon-tractian/talos-public"
+Issues = "https://github.com/canyon-tractian/talos-public/issues"
+
+[tool.setuptools.packages.find]
+include = ["talos*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "S110", "BLE"]
+# E701/E702: compact one-line statements are house style; UP042: str enums are deliberate (JSON/pydantic);
+# the rest are stylistic rewrites with no behaviour change.
+ignore = ["E501", "E701", "E702", "E741", "B007", "B905", "SIM102", "SIM105", "SIM108", "SIM115",
+          "UP042", "RUF005", "RUF007", "RUF012", "RUF059"]

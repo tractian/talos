@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use Talos, please cite it using these metadata."
+type: software
+title: "Talos: an open System One decision model and gate between AI agents and industrial controllers"
+authors:
+  - family-names: Dell'Omo
+    given-names: Canyon
+    affiliation: TRACTIAN
+  - name: TRACTIAN
+version: 0.1.0
+date-released: "2026-10-22"
+license: Apache-2.0
+repository-code: https://github.com/canyon-tractian/talos-public
+url: https://github.com/canyon-tractian/talos-public
+keywords:
+  - decision-model
+  - system-one
+  - industrial-control
+  - modbus
+  - opc-ua
+  - agent-safety
+references:
+  - type: software
+    title: Kev
+    authors:
+      - family-names: Palmer
+        given-names: Jared
+    repository-code: https://github.com/jaredpalmer/kev
+    license: Apache-2.0
+  - type: generic
+    title: "Qwen3.5"
+    authors:
+      - name: Qwen Team
+    year: 2026
+    url: https://huggingface.co/Qwen/Qwen3.5-0.8B-Base
