@@ -2,6 +2,11 @@
 
 All notable changes to the code are recorded here. Model releases are tracked on the Hugging Face model page and tagged here as `model-<name>`.
 
+## Unreleased
+
+### Added
+- MCP front end (`talos-mcp`): an MCP stdio server whose tools (`list_tags`, `read_tag`, `write_tag`, `read_registers`, `write_registers`, `status`) go through the gate exactly like the equivalent Modbus frame through the proxy. Standard library only. Trap registers are never listed; refused calls return the action and `retry_after_ms`, not the reasons (`--explain` for debugging). See `docs/MCP.md`.
+
 ## 0.1.0 — 2026-10-22
 
 ### Fixed (first run on real hardware, an Eaton PowerXL DM1 behind a Jetson, 2026-10-22)

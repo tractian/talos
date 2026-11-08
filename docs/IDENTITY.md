@@ -6,7 +6,8 @@ Reputation needs a subject. Talos attributes every request to an `agent_id` and 
 
 | transport | identity source | strength |
 |---|---|---|
-| MCP server plugin | MCP client id / session, optionally a signed token in the request metadata | strong |
+| MCP server (`talos-mcp`, stdio) | one server process per agent; the operator names it with `--agent ID[:ROLE]`. Nothing the agent sends is used. | strong |
+| MCP over HTTP (not yet) | per-agent bearer token | strong |
 | OPC UA | session name + application URI + client certificate thumbprint when security is on | strong with certs, weak without |
 | Modbus TCP proxy | (source IP, source port range, unit id) + optional registration via a side channel (gateway API) | weak; Modbus has no auth |
 | HTTP/REST gateway | bearer token / API key | strong |
