@@ -80,7 +80,7 @@ Each stage can only make the outcome stricter than the one before. The model nev
 - **Blind mode.** With no map, every register gets a fingerprint from traffic: who writes it, how it moves, its observed range. The model reasons from that. [docs/PIPELINE.md](docs/PIPELINE.md)
 - **The ledger.** Append-only JSONL, hash-chained, with the prior value and the model's answers on every row. `jq` is the query language. [docs/LEDGER.md](docs/LEDGER.md)
 
-Docs: [schema](docs/SCHEMA.md) · [config reference](docs/CONFIG.md) · [the map format](docs/WORLD-FORMAT.md) · [trap registers](docs/TRAPS.md) · [identity](docs/IDENTITY.md) · [the proxy](docs/PROXY.md) · [the model](docs/MODEL.md) · [threat model](docs/THREAT-MODEL.md)
+Docs: [schema](docs/SCHEMA.md) · [config reference](docs/CONFIG.md) · [the map format](docs/WORLD-FORMAT.md) · [trap registers](docs/TRAPS.md) · [identity](docs/IDENTITY.md) · [the proxy](docs/PROXY.md) · [MCP](docs/MCP.md) · [the model](docs/MODEL.md) · [threat model](docs/THREAT-MODEL.md)
 
 ## The model
 
@@ -93,7 +93,7 @@ Training data is fully synthetic: simulated plants, controllers over Modbus and 
 
 ## Status
 
-v0.1. Modbus TCP proxy and the Python gate are usable today. OPC UA and MCP front ends are the next thing; the gate is protocol-neutral and the schema is the contract, so if you build one we want it. See [CONTRIBUTING.md](CONTRIBUTING.md).
+v0.1. Modbus TCP proxy, the MCP front end ([docs/MCP.md](docs/MCP.md)) and the Python gate are usable today. OPC UA is the next thing; the gate is protocol-neutral and the schema is the contract, so if you build one we want it. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Read [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) before putting it in front of anything that moves.
 
